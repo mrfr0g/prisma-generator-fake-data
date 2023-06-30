@@ -13,9 +13,7 @@ function getFieldDefinition(
 
   if (field.isId) {
     return `${field.name}: ${
-      field.type === 'String'
-        ? 'faker.datatype.uuid()'
-        : 'faker.datatype.number()'
+      field.type === 'String' ? 'faker.datatype.uuid()' : 'faker.number.int()'
     }`;
   }
   if (field.hasDefaultValue) {
@@ -39,7 +37,14 @@ function getFieldDefinition(
     }
   }
   if (!field.isRequired) {
-    return `${field.name}: undefined`;
+    if (field.type === 'String') {
+      const rand = Math.floor(Math.random() * 100);
+      const numWords = Math.min(5, Math.floor(Math.random() * 10));
+      return `${field.name}: ${
+        rand < 50 ? null : `faker.lorem.words(${numWords})`
+      }`;
+    }
+    return `${field.name}: null`;
   }
   if (field.kind === 'enum') {
     const enumName = field.type;
@@ -57,9 +62,7 @@ function getFieldDefinition(
   }
   if (model.fields.some((it) => it.relationFromFields?.includes(field.name))) {
     return `${field.name}: ${
-      field.type === 'String'
-        ? 'faker.datatype.uuid()'
-        : 'faker.datatype.number()'
+      field.type === 'String' ? 'faker.datatype.uuid()' : 'faker.number.int()'
     }`;
   }
   if (field.type === 'String') {
@@ -82,12 +85,12 @@ function getFieldDefinition(
   }
   if (field.type === 'Int' || field.type === 'BigInt') {
     if (field.isList) {
-      return `${field.name}: [faker.datatype.number(),faker.datatype.number(),faker.datatype.number(),faker.datatype.number(),faker.datatype.number()]`;
+      return `${field.name}: [faker.number.int(),faker.number.int(),faker.number.int(),faker.number.int(),faker.number.int()]`;
     }
     if (field.name === 'age') {
-      return `${field.name}: faker.datatype.number({min: 0, max: 99})`;
+      return `${field.name}: faker.datatype.int({min: 0, max: 99})`;
     }
-    return `${field.name}: faker.datatype.number()`;
+    return `${field.name}: faker.number.int()`;
   }
   if (field.type === 'Float') {
     if (field.isList) {
